@@ -39,8 +39,15 @@ def clean_text(text: str) -> str:
 
 
 def guess_experience_years(text: str) -> float | None:
-    """Very rough heuristic: looks for patterns like '3 years of experience'."""
-    matches = re.findall(r"(\d+(?:\.\d+)?)\+?\s*(?:years?|yrs?)\s*(?:of)?\s*experience", text, re.IGNORECASE)
-    if matches:
-        return max(float(m) for m in matches)
+    """Rough heuristic: looks for years-of-experience phrases in either
+    word order, e.g. '3 years of experience' or 'experience: 3 years'."""
+    patterns = [
+        r"(\d+(?:\.\d+)?)\+?\s*(?:years?|yrs?)\s*(?:of)?\s*experience",
+        r"experience\s*(?:of|is|:)?\s*(\d+(?:\.\d+)?)\+?\s*(?:years?|yrs?)",
+    ]
+    found = []
+    for pattern in patterns:
+        found.extend(re.findall(pattern, text, re.IGNORECASE))
+    if found:
+        return max(float(m) for m in found)
     return None

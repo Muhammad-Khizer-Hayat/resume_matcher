@@ -27,6 +27,20 @@ EDUCATION_KEYWORDS = [
     "information technology", "data science", "artificial intelligence",
 ]
 
+# Short abbreviations only count as an education signal when they appear
+# right after a degree-indicating word (bs, ba, degree, major, field, in,
+# of) — otherwise common words like "it" (the pronoun) or "cs" (random
+# initials) would cause false matches on almost any text.
+EDUCATION_ABBREVIATIONS = {
+    "cs": "computer science",
+    "it": "information technology",
+    "ai": "artificial intelligence",
+    "ds": "data science",
+    "se": "software engineering",
+    "cse": "computer science",
+}
+_DEGREE_CONTEXT = r"(?:bs|b\.s\.?|ba|b\.a\.?|bsc|degree|major|field|in|of)"
+
 
 def extract_skills(text: str) -> list[str]:
     text_lower = text.lower()
@@ -40,5 +54,20 @@ def extract_skills(text: str) -> list[str]:
 
 def extract_education(text: str) -> list[str]:
     text_lower = text.lower()
-    found = [kw for kw in EDUCATION_KEYWORDS if kw in text_lower]
+    found = []
+
+    for kw in EDUCATION_KEYWORDS:
+        # Allow an optional trailing "s" on each word (e.g. "informations
+        # technology" still matches "information technology") so small
+        # typos/pluralization don't cause a silent miss.
+        words = kw.split()
+        pattern = r"\b" + r"s?\s+".join(re.escape(w) for w in words) + r"s?\b"
+        if re.search(pattern, text_lower):
+            found.append(kw)
+
+    for abbr, canonical in EDUCATION_ABBREVIATIONS.items():
+        pattern = rf"\b{_DEGREE_CONTEXT}\s+{re.escape(abbr)}\b"
+        if re.search(pattern, text_lower):
+            found.append(canonical)
+
     return sorted(set(found))
