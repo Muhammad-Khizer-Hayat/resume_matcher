@@ -31,15 +31,11 @@ def health_check():
     return {"status": "ok", "service": "resume-matcher-api"}
 
 
-# Serve the plain HTML/CSS/JS frontend directly from the backend when
-# running locally (uvicorn app.main:app), so visiting http://127.0.0.1:8000
-# shows the actual website instead of just the JSON API.
-#
-# On Vercel, static files in backend/public/ are served automatically by
-# Vercel's CDN at the platform level — mounting them here too is not
-# needed there (and Vercel's own docs advise against it), so this mount
-# only runs for local development.
-if os.environ.get("VERCEL") != "1":
-    frontend_dir = Path(__file__).resolve().parent.parent / "public"
-    if frontend_dir.exists():
-        app.mount("/", StaticFiles(directory=frontend_dir, html=True), name="frontend")
+# Serve the plain HTML/CSS/JS frontend directly from the backend, so
+# visiting the site's root URL shows the actual website instead of just
+# the JSON API. This works both locally (uvicorn) and on Vercel — Vercel's
+# public/ CDN only auto-serves exact file paths like /style.css, not "/"
+# with index.html resolution, so this mount handles that case directly.
+frontend_dir = Path(__file__).resolve().parent.parent / "public"
+if frontend_dir.exists():
+    app.mount("/", StaticFiles(directory=frontend_dir, html=True), name="frontend")
