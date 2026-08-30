@@ -1,27 +1,25 @@
-# Python virtual environments
+# --- Python / backend ---
 venv/
-.venv/
-env/
-backend/venv/
-
-# Python cache
+venv2/
+venvcheck/
 __pycache__/
-*.py[cod]
-
-# Environment variables / API keys
+*.pyc
+*.pyo
 .env
-.env.*
+.env.local
+*.egg-info/
+.pytest_cache/
 
-# IDE
+# --- Node / frontend (in case of old React remnants) ---
+node_modules/
+dist/
+.vercel/
+
+# --- OS / editor ---
+.DS_Store
+Thumbs.db
 .vscode/
 .idea/
 
-# Jupyter
-.ipynb_checkpoints/
-
-# Logs
+# --- Logs ---
 *.log
-
-# OS files
-.DS_Store
-Thumbs.db
