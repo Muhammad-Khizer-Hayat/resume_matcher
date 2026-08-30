@@ -33,9 +33,11 @@ def health_check():
 
 # Serve the plain HTML/CSS/JS frontend directly from the backend, so
 # visiting the site's root URL shows the actual website instead of just
-# the JSON API. This works both locally (uvicorn) and on Vercel — Vercel's
-# public/ CDN only auto-serves exact file paths like /style.css, not "/"
-# with index.html resolution, so this mount handles that case directly.
-frontend_dir = Path(__file__).resolve().parent.parent / "public"
+# the JSON API. This folder is deliberately NOT named "public" — Vercel
+# treats that name specially (auto CDN promotion) and mounting it
+# ourselves on top of that caused routing conflicts. "static" avoids
+# that special handling entirely; our own mount serves it directly in
+# both local dev and on Vercel.
+frontend_dir = Path(__file__).resolve().parent.parent / "static"
 if frontend_dir.exists():
     app.mount("/", StaticFiles(directory=frontend_dir, html=True), name="frontend")
